@@ -25,25 +25,27 @@ jobs:
           git config --global user.name ${GitHubName}
           git config --global credential.helper store
           echo "https://${GitHubName}:${{ secrets.GH_TOKEN }}@github.com" > ~/.git-credentials
-
-      # Cleanup The Actions Workspace Using Custom Composite Run Actions
-      - uses: rokibhasansagar/slimhub_actions@main
+      # Cleanup The Actions Workspace Using Custom Composite Run Actions free up space
+     # - uses: rokibhasansagar/slimhub_actions@main
 
       - name: Clone The Secret Mirror Repository
         run: |
           git clone https://${{ secrets.GH_TOKEN }}@github.com/${{ secrets.MIRROR_REPOSLUG }} source
-
-      - name: Compile The Mirroring Project 
+      - name: Installing nodejs, npm, typescript
         run: |
+          cd source
+          echo $(pwd)
+          sudo apt -y install nodejs npm
+          sudo npm install -g typescript
+          sudo npm install --force
           tsc
-
       - name: running Bot
         timeout-minutes: 340
         continue-on-error: true
         run: |
+          cd source
           ./start.sh
           npm start
-
       - name: Loop Workflow
         continue-on-error: true
         run: |
@@ -52,6 +54,5 @@ jobs:
           cd loop || exit 1
           echo $(( RANDOM - ( RANDOM % RANDOM ) )) > looper.txt
           git add looper.txt
-          git commit -m "Workflow : Loop at $(TZ='Asia/Kolkata' date +"%b %e, %l:%M %p")"
-          git push -q https://${{ secrets.GH_TOKEN }}@github.com/${GITHUB_REPOSITORY} HEAD:main
-
+          git commit --amend -m "Workflow : Loop at $(TZ='Asia/Kolkata' date +"%b %e, %l:%M %p")"
+          git push -qf https://${{ secrets.GH_TOKEN }}@github.com/${GITHUB_REPOSITORY} HEAD:main
