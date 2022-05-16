@@ -31,14 +31,6 @@ jobs:
       - name: Clone The Secret Mirror Repository
         run: |
           git clone https://${{ secrets.GH_TOKEN }}@github.com/${{ secrets.MIRROR_REPOSLUG }} source
-      - name: Installing nodejs, npm, typescript
-        run: |
-          cd source
-          echo $(pwd)
-          sudo apt -y install nodejs npm
-          sudo npm install -g typescript
-          sudo npm install --force
-          tsc
       - name: running Bot
         timeout-minutes: 340
         continue-on-error: true
